@@ -208,6 +208,34 @@ get_gflags() {
     touch "${DEPS_DIR}/gflags_installed"
 }
 
+get_fastfloat() {
+    if [ -f "${DEPS_DIR}/fastfloat_installed" ]; then
+        return
+    fi
+    FASTFLOAT_DIR=$DEPS_DIR/fast_float
+    FASTFLOAT_BUILD_DIR=$DEPS_DIR/fast_float/_build
+    rm -rf "$FASTFLOAT_DIR"
+    pushd .
+    echo -e "${COLOR_GREEN}[ INFO ] Cloning fast_float repo ${COLOR_OFF}"
+    wget https://github.com/fastfloat/fast_float/archive/refs/tags/v6.1.4.tar.gz
+    tar -xvf v6.1.4.tar.gz
+    mv fast_float-6.1.4 "$FASTFLOAT_DIR"
+    rm -f v6.1.4.tar.gz
+    echo -e "${COLOR_GREEN}[ INFO ] Building fast_float ${COLOR_OFF}"
+    mkdir -p "$FASTFLOAT_BUILD_DIR"
+    cd "$FASTFLOAT_BUILD_DIR" || exit
+    cmake -DCXX_STD=gnu++17                         \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo             \
+      -DCMAKE_PREFIX_PATH="$INSTALL_DIR"            \
+      -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR"         \
+      ..
+    make -j "$NCPUS"
+    make install
+    echo -e "${COLOR_GREEN}fast_float is installed ${COLOR_OFF}"
+    popd
+    touch "${DEPS_DIR}/fastfloat_installed"
+}
+
 get_folly() {
     if [ -f "${DEPS_DIR}/folly_installed" ]; then
         return
@@ -623,6 +651,7 @@ get_dev_tools
 get_required_libs
 get_libevent
 get_gflags
+get_fastfloat
 get_folly
 get_clang
 get_gtest

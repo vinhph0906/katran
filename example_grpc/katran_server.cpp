@@ -68,12 +68,15 @@ DEFINE_string(
 // routine which parses comma separated string of numbers
 // (e.g. "1,2,3,4,10,11,12,13") to vector of int32_t
 // will throw on failure.
-std::vector<int32_t> parseIntLine(const std::string& line) {
+std::vector<int32_t> parseIntLine(const std::string &line)
+{
   std::vector<int32_t> nums;
-  if (!line.empty()) {
+  if (!line.empty())
+  {
     std::vector<std::string> splitedLine;
     folly::split(",", line, splitedLine);
-    for (const auto& num_str : splitedLine) {
+    for (const auto &num_str : splitedLine)
+    {
       auto num = folly::to<int32_t>(num_str);
       nums.push_back(num);
     }
@@ -82,9 +85,10 @@ std::vector<int32_t> parseIntLine(const std::string& line) {
 }
 
 void RunServer(
-    katran::KatranConfig& config,
+    katran::KatranConfig &config,
     int32_t delay,
-    std::shared_ptr<folly::EventBase> evb) {
+    std::shared_ptr<folly::EventBase> evb)
+{
   std::string server_address(FLAGS_server);
   lb::katran::KatranGrpcService service(config);
 
@@ -105,7 +109,8 @@ void RunServer(
   server->Wait();
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
   folly::init(&argc, &argv);
   FLAGS_logtostderr = 1;
 
@@ -133,7 +138,8 @@ int main(int argc, char** argv) {
   config.hashFunction = katran::HashFunction::MaglevV2;
 
   auto evb = std::make_shared<folly::EventBase>();
-  std::thread t1([evb]() { evb->loopForever(); });
+  std::thread t1([evb]()
+                 { evb->loopForever(); });
   t1.detach();
 
   RunServer(config, FLAGS_shutdown_delay, evb);

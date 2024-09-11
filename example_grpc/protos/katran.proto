@@ -164,4 +164,4 @@ service KatranService {
 
   rpc getHealthcheckersDst(Empty) returns (hcMap);
 }
-option go_package = "./;protos";
+option go_package = "./;lb_katran";
