@@ -18,7 +18,7 @@ package katranc
 
 import (
 	"fmt"
-	lb_katran "katranc/lb_katran"
+	lb_katran "katran_goclient/lb_katran"
 	"log"
 	"regexp"
 	"strconv"

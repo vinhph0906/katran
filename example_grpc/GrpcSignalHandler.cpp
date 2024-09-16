@@ -18,35 +18,45 @@
 
 #include <folly/io/async/EventBase.h>
 
-namespace lb {
-namespace katran {
+namespace lb
+{
+  namespace katran
+  {
 
-GrpcSignalHandler::GrpcSignalHandler(
-    std::shared_ptr<folly::EventBase> evb,
-    grpc::Server* server,
-    int32_t delay)
-    : folly::AsyncSignalHandler(evb.get()), delay_(delay) {
-  server_ = server;
-  evb_ = evb;
-};
+    GrpcSignalHandler::GrpcSignalHandler(
+        std::shared_ptr<folly::EventBase> evb,
+        grpc::Server *server,
+        int32_t delay)
+        : folly::AsyncSignalHandler(evb.get()), delay_(delay)
+    {
+      server_ = server;
+      evb_ = evb;
+    };
 
-void GrpcSignalHandler::signalReceived(int signum) noexcept {
-  if (shutdownScheduled_) {
-    LOG(INFO) << "Ignoring signal: " << signum << " as we already scheduled"
-              << " sighandler to run.";
-    return;
-  };
-  LOG(INFO) << "Signal: " << signum << ", stopping service in " << delay_
-            << " milliseconds.";
-  evb_->runInEventBaseThread([this]() {
-    evb_->runAfterDelay(
-        [this]() {
-          LOG(INFO) << "Stopping Katran!";
-          server_->Shutdown();
-        },
-        delay_);
-  });
-  shutdownScheduled_ = true;
-};
-} // namespace katran
+    void GrpcSignalHandler::signalReceived(int signum) noexcept
+    {
+      if (signum == 1)
+      {
+        LOG(INFO) << "Ignoring signal: " << signum;
+        return;
+      }
+      if (shutdownScheduled_)
+      {
+        LOG(INFO) << "Ignoring signal: " << signum << " as we already scheduled"
+                  << " sighandler to run.";
+        return;
+      };
+      LOG(INFO) << "Signal: " << signum << ", stopping service in " << delay_
+                << " milliseconds.";
+      evb_->runInEventBaseThread([this]()
+                                 { evb_->runAfterDelay(
+                                       [this]()
+                                       {
+                                         LOG(INFO) << "Stopping Katran!";
+                                         server_->Shutdown();
+                                       },
+                                       delay_); });
+      shutdownScheduled_ = true;
+    };
+  } // namespace katran
 } // namespace lb
